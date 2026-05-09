@@ -94,6 +94,76 @@ const ShieldLogo = ({ size = 44 }) => (
   </motion.div>
 );
 
+// --- Mission Selection Modal ---
+const STAGES = [
+  { id: 'orbital', label: 'Orbital', threshold: 25, color: 'var(--stage-orbital)', icon: <RotateCcw size={14} /> },
+  { id: 'ignition', label: 'Ignition', threshold: 50, color: 'var(--stage-ignition)', icon: <Zap size={14} /> },
+  { id: 'thermal', label: 'Thermal', threshold: 75, color: 'var(--stage-thermal)', icon: <Sparkles size={14} /> },
+  { id: 'touchdown', label: 'Touchdown', threshold: 100, color: 'var(--stage-touchdown)', icon: <CheckCircle size={14} /> }
+];
+
+const MissionSelectionModal = ({ task, onConfirm, onCancel }) => {
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="mission-modal-overlay"
+    >
+      <motion.div 
+        initial={{ scale: 0.9, y: 30, filter: 'blur(10px)' }}
+        animate={{ scale: 1, y: 0, filter: 'blur(0px)' }}
+        exit={{ scale: 0.9, y: 30, filter: 'blur(10px)' }}
+        className="mission-modal"
+        style={{ position: 'relative', overflow: 'hidden' }}
+      >
+
+        <div style={{ textAlign: 'center', position: 'relative', zIndex: 5 }}>
+          <div className="grindset-text" style={{ marginBottom: '0.5rem', letterSpacing: '0.3em' }}>MISSION PROTOCOL REQUIRED</div>
+          <h2 style={{ fontSize: '2.5rem', fontWeight: 900, letterSpacing: '-0.05em' }}>Select Engagement Mode</h2>
+          <p style={{ color: 'var(--text-secondary)', fontWeight: 600, marginTop: '0.5rem' }}>
+            Detecting target: <span style={{ color: 'var(--accent-primary)' }}>"{task?.title}"</span>
+          </p>
+        </div>
+
+        <div className="mission-grid" style={{ position: 'relative', zIndex: 5 }}>
+          <motion.div 
+            whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.05)' }} whileTap={{ scale: 0.98 }}
+            onClick={() => onConfirm('quick')}
+            className="mission-option quick"
+            style={{ position: 'relative', overflow: 'hidden' }}
+          >
+            <div className="mission-icon"><Send size={24} /></div>
+            <div>
+              <h3 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Quick Strike</h3>
+              <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '0.4rem', fontWeight: 600 }}>Standard deployment. Direct completion. Best for simple objectives.</p>
+            </div>
+          </motion.div>
+
+          <motion.div 
+            whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.05)' }} whileTap={{ scale: 0.98 }}
+            onClick={() => onConfirm('campaign')}
+            className="mission-option campaign"
+            style={{ position: 'relative', overflow: 'hidden' }}
+          >
+            <div className="mission-icon"><Target size={24} /></div>
+            <div>
+              <h3 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Campaign Protocol</h3>
+              <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '0.4rem', fontWeight: 600 }}>Long-haul tracking. Multi-stage atmospheric re-entry. Best for heavy lifting.</p>
+            </div>
+          </motion.div>
+        </div>
+
+        <div style={{ marginTop: '2.5rem', textAlign: 'center', position: 'relative', zIndex: 5 }}>
+          <button 
+            onClick={onCancel}
+            style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontWeight: 800, cursor: 'pointer', textDecoration: 'underline' }}
+          >
+            Abort Protocol
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
 // --- Splash Screen ---
 const SplashScreen = () => (
   <motion.div 
@@ -123,6 +193,44 @@ const SplashScreen = () => (
     </motion.div>
   </motion.div>
 );
+// --- Clean Professional Indicators ---
+const AuraIndicator = ({ color }) => {
+  return (
+    <div style={{ position: 'relative', width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <motion.div 
+        animate={{ scale: [1, 2.2, 1], opacity: [0.1, 0.4, 0.1] }}
+        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        style={{ position: 'absolute', inset: -6, borderRadius: '50%', background: `radial-gradient(circle, ${color} 0%, transparent 70%)`, filter: 'blur(4px)' }} 
+      />
+      <motion.div 
+        animate={{ scale: [1, 1.2, 1] }}
+        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        style={{ width: '5px', height: '5px', borderRadius: '50%', background: color, zIndex: 1, boxShadow: `0 0 8px ${color}` }} 
+      />
+    </div>
+  );
+};
+
+const LuminousWave = ({ color }) => {
+  return (
+    <motion.div
+      initial={{ x: '-150%', skewX: -25 }}
+      animate={{ x: '250%' }}
+      transition={{ duration: 2.5, repeat: Infinity, ease: [0.4, 0, 0.2, 1], repeatDelay: 6 }}
+      style={{
+        position: 'absolute',
+        top: -50,
+        bottom: -50,
+        width: '30%',
+        background: `linear-gradient(90deg, transparent, ${color}05, ${color}15, ${color}05, transparent)`,
+        pointerEvents: 'none',
+        zIndex: 1,
+        filter: 'blur(20px)'
+      }}
+    />
+  );
+};
+
 // --- YC Style Reveal ---
 const YCReveal = ({ text }) => {
   const words = text.split(' ');
@@ -673,6 +781,9 @@ function App() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [theme, setTheme] = useState(() => localStorage.getItem('taskflow_theme') || 'dark');
 
+  const [pendingTask, setPendingTask] = useState(null);
+  const [isMissionModalOpen, setIsMissionModalOpen] = useState(false);
+
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -718,8 +829,33 @@ function App() {
   const handleSendMessage = () => {
     if (!inputText.trim()) return;
     const newTask = processMessage(inputText);
-    setTasks([newTask, ...tasks]);
+    setPendingTask(newTask);
+    setIsMissionModalOpen(true);
     setInputText('');
+  };
+
+  const handleConfirmMission = (mode) => {
+    if (!pendingTask) return;
+    const finalTask = {
+      ...pendingTask,
+      mode,
+      hasProgress: mode === 'campaign',
+      progress: 0,
+      stage: 'orbital'
+    };
+    setTasks([finalTask, ...tasks]);
+    setPendingTask(null);
+    setIsMissionModalOpen(false);
+  };
+
+  const updateTaskProgress = (id, newProgress) => {
+    setTasks(tasks.map(t => {
+      if (t.id === id) {
+        const stage = STAGES.find(s => newProgress <= s.threshold) || STAGES[STAGES.length - 1];
+        return { ...t, progress: newProgress, stage: stage.id };
+      }
+      return t;
+    }));
   };
 
   const toggleTaskStatus = (id) => {
@@ -754,6 +890,16 @@ function App() {
       <div className="aura-blob aura-1"></div>
       <div className="aura-blob aura-2"></div>
       
+      <AnimatePresence>
+        {isMissionModalOpen && pendingTask && (
+          <MissionSelectionModal 
+            task={pendingTask} 
+            onConfirm={handleConfirmMission} 
+            onCancel={() => { setIsMissionModalOpen(false); setPendingTask(null); }} 
+          />
+        )}
+      </AnimatePresence>
+
       <AnimatePresence>
         {loading && <SplashScreen key="splash" />}
       </AnimatePresence>
@@ -949,7 +1095,7 @@ function App() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
                   <AnimatePresence mode="popLayout">
                     {pendingTasks.map((task) => (
-                      <TaskCard key={task.id} task={task} onToggle={() => toggleTaskStatus(task.id)} onDelete={() => deleteTask(task.id)} />
+                      <TaskCard key={task.id} task={task} onToggle={() => toggleTaskStatus(task.id)} onDelete={() => deleteTask(task.id)} onUpdateProgress={updateTaskProgress} />
                     ))}
                     {pendingTasks.length === 0 && (
                       <div style={{ textAlign: 'center', padding: '6rem 2rem', background: 'rgba(255,255,255,0.4)', borderRadius: '40px', border: '3px dashed var(--border-color)' }}>
@@ -997,7 +1143,7 @@ function App() {
             <div style={{ gridColumn: '1 / -1' }}>
               <div className="section-title">Completed Experience</div>
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(340px, 1fr))', gap: '2.5rem' }}>
-                {completedTasks.map(task => <TaskCard key={task.id} task={task} onToggle={() => toggleTaskStatus(task.id)} onDelete={() => deleteTask(task.id)} />)}
+                {completedTasks.map(task => <TaskCard key={task.id} task={task} onToggle={() => toggleTaskStatus(task.id)} onDelete={() => deleteTask(task.id)} onUpdateProgress={updateTaskProgress} />)}
               </div>
             </div>
           )}
@@ -1074,30 +1220,108 @@ function StatRow({ label, value, color }) {
   );
 }
 
-function TaskCard({ task, onToggle, onDelete }) {
+function TaskCard({ task, onToggle, onDelete, onUpdateProgress }) {
   const isDone = task.status === 'done';
+  const currentStage = STAGES.find(s => s.id === task.stage) || STAGES[0];
+  const isThermal = task.stage === 'thermal';
+
   return (
-    <motion.div layout initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -5, boxShadow: '0 20px 40px -15px rgba(0,0,0,0.1)' }} className="glass-panel" style={{ 
-      display: 'flex', gap: '1.75rem', opacity: isDone ? 0.6 : 1, padding: '2rem', background: 'var(--card-bg)',
-      borderLeft: `10px solid ${task.priority === 'high' ? 'var(--accent-orange)' : 'var(--accent-primary)'}`
-    }}>
+    <motion.div 
+      layout 
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ 
+        opacity: 1, 
+        y: 0,
+      }}
+      whileHover={{ y: -2, boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)' }}
+      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+      className="glass-panel" 
+      style={{ 
+        display: 'flex', gap: '1.75rem', opacity: isDone ? 0.6 : 1, padding: '2rem', background: 'var(--card-bg)',
+        borderLeft: `8px solid ${task.hasProgress ? currentStage.color : (task.priority === 'high' ? 'var(--accent-orange)' : 'var(--accent-primary)')}`,
+        position: 'relative', overflow: 'hidden'
+      }}
+    >
+      {/* Holographic Foil Layer */}
+      <div className="holographic-foil" />
+
+      {/* Luminous Wave Shimmer */}
+      {task.hasProgress && !isDone && <LuminousWave color={currentStage.color} />}
+
+      {/* Dynamic Background Glow */}
+      {task.hasProgress && !isDone && (
+        <motion.div 
+          animate={{ opacity: [0.03, 0.08, 0.03] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          style={{ position: 'absolute', inset: 0, background: `radial-gradient(circle at 100% 0%, ${currentStage.color}, transparent 60%)`, pointerEvents: 'none' }} 
+        />
+      )}
+
       <motion.button whileTap={{ scale: 0.7 }} onClick={onToggle} style={{ 
         width: '36px', height: '36px', borderRadius: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
         background: isDone ? 'var(--accent-success)' : 'var(--card-bg)', border: `2px solid ${isDone ? 'var(--accent-success)' : 'var(--text-secondary)'}`,
         boxShadow: isDone ? '0 6px 15px rgba(16, 185, 129, 0.3)' : 'none',
-        opacity: isDone ? 1 : 0.6
+        opacity: isDone ? 1 : 0.6,
+        zIndex: 5
       }}>
-
-
         {isDone && <CheckCircle size={20} color="white" />}
       </motion.button>
-      <div style={{ flex: 1 }}>
+
+      <div style={{ flex: 1, zIndex: 5 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-          <span className={`badge badge-${task.priority === 'high' ? 'pink' : 'blue'}`} style={{ fontSize: '0.75rem', padding: '0.4rem 1rem' }}>{task.priority.toUpperCase()}</span>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <span className={`badge badge-${task.priority === 'high' ? 'pink' : 'blue'}`} style={{ fontSize: '0.75rem', padding: '0.4rem 1rem' }}>{task.priority.toUpperCase()}</span>
+            {task.hasProgress && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span className="badge" style={{ background: 'rgba(0,0,0,0.4)', color: currentStage.color, border: `1px solid ${currentStage.color}40`, backdropFilter: 'blur(10px)' }}>
+                  CAMPAIGN
+                </span>
+                <AuraIndicator color={currentStage.color} />
+              </div>
+            )}
+          </div>
           <Trash2 size={20} style={{ color: '#E2E8F0', cursor: 'pointer' }} onClick={onDelete} />
         </div>
-        <div style={{ fontWeight: 900, fontSize: '1.4rem', letterSpacing: '-0.03em', textDecoration: isDone ? 'line-through' : 'none', color: 'var(--text-primary)' }}>{task.title}</div>
-        <div style={{ display: 'flex', gap: '1.5rem', marginTop: '0.75rem', fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 700 }}>
+        
+        <div style={{ fontWeight: 900, fontSize: '1.4rem', letterSpacing: '-0.03em', textDecoration: isDone ? 'line-through' : 'none', color: 'var(--text-primary)', textShadow: task.hasProgress ? `0 0 20px ${currentStage.color}33` : 'none' }}>
+          {task.title}
+        </div>
+        
+        {task.hasProgress && !isDone && (
+          <div style={{ marginTop: '1.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '0.5rem' }}>
+              <div className="grindset-text" style={{ fontSize: '0.6rem', color: currentStage.color, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, repeat: Infinity }} style={{ width: '6px', height: '6px', borderRadius: '50%', background: currentStage.color }} />
+                {currentStage.label} PROTOCOL ACTIVE
+              </div>
+              <div style={{ fontSize: '1.5rem', fontWeight: 900, color: currentStage.color, letterSpacing: '-0.05em' }}>{task.progress}%</div>
+            </div>
+            
+            <div className="energy-path-container" style={{ height: '8px' }}>
+              <div className="energy-glow" style={{ width: `${task.progress}%`, color: currentStage.color, backgroundColor: currentStage.color, boxShadow: `0 0 20px ${currentStage.color}` }}></div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1.25rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
+              {STAGES.map((s) => (
+                <motion.div 
+                  key={s.id} 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`stage-badge ${task.stage === s.id ? 'active' : ''}`}
+                  style={{ 
+                    color: task.stage === s.id ? s.color : 'var(--text-secondary)',
+                    background: task.stage === s.id ? `${s.color}11` : 'transparent'
+                  }}
+                  onClick={() => onUpdateProgress(task.id, s.threshold)}
+                >
+                  {s.icon} {s.label}
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div style={{ display: 'flex', gap: '1.5rem', marginTop: '1.25rem', fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 700 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Clock size={16} /> {task.deadline}</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Inbox size={16} /> {task.subject}</div>
         </div>
@@ -1105,5 +1329,7 @@ function TaskCard({ task, onToggle, onDelete }) {
     </motion.div>
   );
 }
+
+
 
 export default App;

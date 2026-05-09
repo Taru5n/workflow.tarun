@@ -13,6 +13,13 @@
   --border-color: rgba(226, 232, 240, 0.5);
   --glass-border: rgba(255, 255, 255, 0.4);
   --glass-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+  
+  /* Progress Stages */
+  --stage-orbital: #3B82F6;
+  --stage-ignition: #06B6D4;
+  --stage-thermal: #F97316;
+  --stage-touchdown: #10B981; /* Emerald Green for a winning, congratulatory feel */
+  --modal-overlay: rgba(0, 0, 0, 0.4);
 }
 
 [data-theme='dark'] {
@@ -27,6 +34,7 @@
   --border-color: rgba(51, 65, 85, 0.3);
   --glass-border: rgba(255, 255, 255, 0.08);
   --glass-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  --modal-overlay: rgba(0, 0, 0, 0.8);
 }
 
 body.dark {
@@ -476,3 +484,258 @@ body.dark .glass-panel {
   0% { background-position: 0 0; }
   100% { background-position: 200px 200px; }
 }
+
+/* --- Mission Selection Modal --- */
+.mission-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: var(--modal-overlay);
+  backdrop-filter: blur(15px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.mission-modal {
+  width: 100%;
+  max-width: 800px;
+  background: var(--panel-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 40px;
+  padding: 3rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--glass-shadow);
+}
+
+.mission-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 2.5rem;
+}
+
+.mission-option {
+  padding: 2.5rem;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.mission-option::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent, rgba(255,255,255,0.05), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.8s;
+}
+
+.mission-option:hover::before {
+  transform: translateX(100%);
+}
+
+.mission-option.quick:hover {
+  border-color: var(--accent-primary);
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.mission-option.campaign:hover {
+  border-color: var(--accent-orange);
+  background: rgba(249, 115, 22, 0.05);
+}
+
+.mission-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sidebar-bg);
+  color: var(--accent-primary);
+}
+
+.mission-option.campaign .mission-icon {
+  color: var(--accent-orange);
+}
+
+/* --- Energy-Core Progress --- */
+.energy-path-container {
+  height: 6px;
+  background: var(--border-color);
+  border-radius: 3px;
+  position: relative;
+  margin: 1.5rem 0;
+  overflow: hidden;
+}
+
+.energy-glow {
+  height: 100%;
+  border-radius: 3px;
+  position: relative;
+  transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 0 15px currentColor;
+}
+
+.energy-glow::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  animation: energy-pulse 2s infinite linear;
+}
+
+@keyframes energy-pulse {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+
+.stage-badge {
+  padding: 0.4rem 0.8rem;
+  border-radius: 10px;
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.3s;
+}
+
+.stage-badge:hover {
+  filter: brightness(1.2);
+  transform: translateY(-2px);
+}
+
+.stage-badge.active {
+  border-color: currentColor;
+  box-shadow: 0 0 10px currentColor;
+}
+
+/* --- Quantum Aesthetics --- */
+
+.aura-scanner {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(59, 130, 246, 0.2) 50%,
+    transparent 100%
+  );
+  height: 20%;
+  width: 100%;
+  z-index: 1;
+  animation: scanner-move 4s infinite linear;
+  opacity: 0;
+}
+
+.mission-option:hover .aura-scanner,
+.glass-panel:hover .aura-scanner {
+  opacity: 1;
+}
+
+@keyframes scanner-move {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(500%); }
+}
+
+.neural-waveform {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 20px;
+}
+
+.wave-bar {
+  width: 3px;
+  background: currentColor;
+  border-radius: 2px;
+  animation: wave-pulse 1s infinite ease-in-out;
+}
+
+@keyframes wave-pulse {
+  0%, 100% { height: 4px; opacity: 0.5; }
+  50% { height: 16px; opacity: 1; }
+}
+
+.card-perspective {
+  perspective: 1000px;
+}
+
+.tilt-inner {
+  transform-style: preserve-3d;
+  transition: transform 0.1s ease-out;
+}
+
+.holographic-foil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    125deg,
+    transparent 0%,
+    rgba(255,255,255,0.05) 30%,
+    rgba(255,255,255,0.1) 50%,
+    rgba(255,255,255,0.05) 70%,
+    transparent 100%
+  );
+  z-index: 10;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.glass-panel:hover .holographic-foil {
+  opacity: 1;
+}
+
+/* Neural Beacon Radar Ping */
+@keyframes radar-ping {
+  0% { transform: scale(1); opacity: 0.5; }
+  100% { transform: scale(3.5); opacity: 0; }
+}
+
+.neural-beacon {
+  position: relative;
+  width: 10px;
+  height: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.beacon-ping {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  pointer-events: none;
+}
+
+.beacon-core {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 10px currentColor;
+  z-index: 2;
+}
+
