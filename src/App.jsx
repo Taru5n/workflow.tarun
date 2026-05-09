@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import ReactDOM from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Inbox, 
@@ -377,18 +378,16 @@ const CustomizableTimer = () => {
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (timeLeft / (totalMinutes * 60)) * circumference;
 
-  return (
-    <div className={`glass-panel ${isFullscreen ? 'timer-fullscreen' : ''}`} style={isFullscreen ? {
-      position: 'fixed', inset: 0, zIndex: 10000, 
-      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-      background: 'transparent', padding: '2rem', border: 'none', borderRadius: 0
-    } : { padding: '1.5rem', marginTop: '1rem', textAlign: 'center' }}>
-      
+  const timerContent = (
+    <>
       {isFullscreen && (
-        <div className="fullscreen-timer-bg"></div>
+        <>
+          <div className="fullscreen-timer-bg"></div>
+          <div className="timer-particles"></div>
+        </>
       )}
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', width: '100%', maxWidth: isFullscreen ? '400px' : 'auto', zIndex: 1 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', width: '100%', maxWidth: isFullscreen ? '400px' : 'auto', zIndex: 10 }}>
         <div className="section-title" style={{ margin: 0, display: 'flex', gap: '0.4rem', color: isFullscreen ? 'rgba(255,255,255,0.9)' : 'var(--accent-primary)' }}>
           <Timer size={14} /> Focus
         </div>
@@ -404,7 +403,7 @@ const CustomizableTimer = () => {
         </div>
       </div>
       
-      <div className="timer-container" style={{ margin: '0.5rem auto', zIndex: 1, transform: isFullscreen ? 'scale(2.5)' : 'none', transition: 'transform 0.5s cubic-bezier(0.23, 1, 0.32, 1)' }}>
+      <div className="timer-container" style={{ margin: '0.5rem auto', zIndex: 10, transform: isFullscreen ? 'scale(2.5)' : 'none', transition: 'transform 0.5s cubic-bezier(0.23, 1, 0.32, 1)' }}>
         <svg className="timer-svg" width="160" height="160">
           <circle className="timer-bg" cx="80" cy="80" r={radius} style={{ stroke: isFullscreen ? 'rgba(255,255,255,0.1)' : 'var(--border-color)' }} />
           <motion.circle 
@@ -443,14 +442,14 @@ const CustomizableTimer = () => {
               <span style={{ fontSize: '0.7rem', fontWeight: 700, marginLeft: '2px', color: isFullscreen ? 'white' : 'var(--text-primary)' }}>MIN</span>
             </div>
           ) : (
-            <div style={{ fontSize: '2.25rem', fontWeight: 900, color: isFullscreen ? 'white' : 'var(--text-primary)', letterSpacing: '-0.05em' }}>
+            <div style={{ fontSize: '2.25rem', fontWeight: 900, color: isFullscreen ? 'white' : 'var(--text-primary)', letterSpacing: '-0.05em', textShadow: isFullscreen ? '0 4px 20px rgba(0,0,0,0.5)' : 'none' }}>
               {formatTime(timeLeft)}
             </div>
           )}
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', marginTop: isFullscreen ? '8rem' : '1rem', zIndex: 1 }}>
+      <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', marginTop: isFullscreen ? '8rem' : '1rem', zIndex: 10 }}>
         <motion.button 
           whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
           onClick={toggleTimer} 
@@ -458,7 +457,8 @@ const CustomizableTimer = () => {
             background: isActive ? (isFullscreen ? 'rgba(255,255,255,0.2)' : 'var(--text-secondary)') : 'var(--accent-primary)', 
             color: 'white', border: 'none', width: '42px', height: '42px', borderRadius: '50%', 
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 8px 16px rgba(30, 58, 138, 0.2)'
+            boxShadow: '0 8px 16px rgba(0, 0, 0, 0.3)',
+            backdropFilter: isFullscreen ? 'blur(10px)' : 'none'
           }}
         >
           {isActive ? <Pause size={18} /> : <Play size={18} />}
@@ -471,12 +471,29 @@ const CustomizableTimer = () => {
             color: isFullscreen ? 'white' : 'var(--text-secondary)', 
             border: `1px solid ${isFullscreen ? 'rgba(255,255,255,0.2)' : 'var(--border-color)'}`, 
             width: '42px', height: '42px', borderRadius: '50%', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center'
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            backdropFilter: isFullscreen ? 'blur(10px)' : 'none',
+            boxShadow: isFullscreen ? '0 8px 16px rgba(0, 0, 0, 0.3)' : 'none'
           }}
         >
           <RotateCcw size={18} />
         </motion.button>
       </div>
+    </>
+  );
+
+  if (isFullscreen) {
+    return ReactDOM.createPortal(
+      <div className="timer-fullscreen-overlay">
+        {timerContent}
+      </div>,
+      document.body
+    );
+  }
+
+  return (
+    <div className="glass-panel" style={{ padding: '1.5rem', marginTop: '1rem', textAlign: 'center', position: 'relative' }}>
+      {timerContent}
     </div>
   );
 };
