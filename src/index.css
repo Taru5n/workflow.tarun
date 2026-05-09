@@ -419,3 +419,55 @@ body.dark .glass-panel {
   text-align: center;
   outline: none;
 }
+
+/* Timer Fullscreen Mode */
+.timer-fullscreen {
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.fullscreen-timer-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(45deg, #020617, #1E3A8A, #312E81, #020617);
+  background-size: 400% 400%;
+  animation: cosmic-drift 15s ease infinite;
+  overflow: hidden;
+}
+
+.fullscreen-timer-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at center, transparent 0%, #000 100%), url("https://grainy-gradients.vercel.app/noise.svg");
+  opacity: 0.4;
+  mix-blend-mode: overlay;
+}
+
+.fullscreen-timer-bg::before {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  background: 
+    radial-gradient(circle at 15% 50%, rgba(249, 115, 22, 0.3) 0%, transparent 40%),
+    radial-gradient(circle at 85% 30%, rgba(212, 175, 55, 0.25) 0%, transparent 40%),
+    radial-gradient(circle at 50% 80%, rgba(14, 165, 233, 0.2) 0%, transparent 40%);
+  filter: blur(60px);
+  animation: cosmic-pulse 10s ease-in-out infinite alternate, spin 60s linear infinite;
+  opacity: 0.8;
+}
+
+@keyframes cosmic-drift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes cosmic-pulse {
+  0% { opacity: 0.6; transform: scale(1); }
+  100% { opacity: 1; transform: scale(1.1); }
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}

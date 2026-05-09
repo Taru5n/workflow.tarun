@@ -19,7 +19,9 @@ import {
   Pause,
   RotateCcw,
   Sparkles,
-  Settings
+  Settings,
+  Maximize,
+  Minimize
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { processMessage } from './utils/parser';
@@ -344,6 +346,7 @@ const CustomizableTimer = () => {
   const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [isActive, setIsActive] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   
   useEffect(() => {
     let interval = null;
@@ -375,21 +378,35 @@ const CustomizableTimer = () => {
   const offset = circumference - (timeLeft / (totalMinutes * 60)) * circumference;
 
   return (
-    <div className="glass-panel" style={{ padding: '1.5rem', marginTop: '1rem', textAlign: 'center' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <div className="section-title" style={{ margin: 0, display: 'flex', gap: '0.4rem' }}>
+    <div className={`glass-panel ${isFullscreen ? 'timer-fullscreen' : ''}`} style={isFullscreen ? {
+      position: 'fixed', inset: 0, zIndex: 10000, 
+      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+      background: 'transparent', padding: '2rem', border: 'none', borderRadius: 0
+    } : { padding: '1.5rem', marginTop: '1rem', textAlign: 'center' }}>
+      
+      {isFullscreen && (
+        <div className="fullscreen-timer-bg"></div>
+      )}
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', width: '100%', maxWidth: isFullscreen ? '400px' : 'auto', zIndex: 1 }}>
+        <div className="section-title" style={{ margin: 0, display: 'flex', gap: '0.4rem', color: isFullscreen ? 'rgba(255,255,255,0.9)' : 'var(--accent-primary)' }}>
           <Timer size={14} /> Focus
         </div>
-        <Settings 
-          size={14} 
-          style={{ cursor: 'pointer', color: isEditing ? 'var(--accent-orange)' : 'var(--text-secondary)' }} 
-          onClick={() => setIsEditing(!isEditing)}
-        />
+        <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
+          <Settings 
+            size={14} 
+            style={{ cursor: 'pointer', color: isEditing ? 'var(--accent-orange)' : (isFullscreen ? 'rgba(255,255,255,0.6)' : 'var(--text-secondary)') }} 
+            onClick={() => setIsEditing(!isEditing)}
+          />
+          <button onClick={() => setIsFullscreen(!isFullscreen)} style={{ background: 'none', border: 'none', color: isFullscreen ? 'rgba(255,255,255,0.6)' : 'var(--text-secondary)', cursor: 'pointer', display: 'flex' }}>
+            {isFullscreen ? <Minimize size={14} /> : <Maximize size={14} />}
+          </button>
+        </div>
       </div>
       
-      <div className="timer-container" style={{ margin: '0.5rem auto' }}>
+      <div className="timer-container" style={{ margin: '0.5rem auto', zIndex: 1, transform: isFullscreen ? 'scale(2.5)' : 'none', transition: 'transform 0.5s cubic-bezier(0.23, 1, 0.32, 1)' }}>
         <svg className="timer-svg" width="160" height="160">
-          <circle className="timer-bg" cx="80" cy="80" r={radius} />
+          <circle className="timer-bg" cx="80" cy="80" r={radius} style={{ stroke: isFullscreen ? 'rgba(255,255,255,0.1)' : 'var(--border-color)' }} />
           <motion.circle 
             className="timer-progress" 
             cx="80" cy="80" r={radius} 
@@ -397,7 +414,7 @@ const CustomizableTimer = () => {
             animate={{ strokeDashoffset: offset }}
             style={{ 
               fill: 'none', 
-              stroke: isActive ? 'var(--accent-orange)' : 'var(--accent-primary)',
+              stroke: isActive ? 'var(--accent-orange)' : (isFullscreen ? 'rgba(255,255,255,0.8)' : 'var(--accent-primary)'),
               strokeWidth: 8,
               strokeLinecap: 'round'
             }}
@@ -421,23 +438,24 @@ const CustomizableTimer = () => {
                 value={totalMinutes}
                 onChange={(e) => setTotalMinutes(Math.max(1, parseInt(e.target.value) || 1))}
                 autoFocus
+                style={{ color: isFullscreen ? 'white' : 'var(--text-primary)', borderColor: isFullscreen ? 'rgba(255,255,255,0.3)' : 'var(--border-color)' }}
               />
-              <span style={{ fontSize: '0.7rem', fontWeight: 700, marginLeft: '2px' }}>MIN</span>
+              <span style={{ fontSize: '0.7rem', fontWeight: 700, marginLeft: '2px', color: isFullscreen ? 'white' : 'var(--text-primary)' }}>MIN</span>
             </div>
           ) : (
-            <div style={{ fontSize: '2.25rem', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '-0.05em' }}>
+            <div style={{ fontSize: '2.25rem', fontWeight: 900, color: isFullscreen ? 'white' : 'var(--text-primary)', letterSpacing: '-0.05em' }}>
               {formatTime(timeLeft)}
             </div>
           )}
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', marginTop: '1rem' }}>
+      <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', marginTop: isFullscreen ? '8rem' : '1rem', zIndex: 1 }}>
         <motion.button 
           whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
           onClick={toggleTimer} 
           style={{ 
-            background: isActive ? 'var(--text-secondary)' : 'var(--accent-primary)', 
+            background: isActive ? (isFullscreen ? 'rgba(255,255,255,0.2)' : 'var(--text-secondary)') : 'var(--accent-primary)', 
             color: 'white', border: 'none', width: '42px', height: '42px', borderRadius: '50%', 
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
             boxShadow: '0 8px 16px rgba(30, 58, 138, 0.2)'
@@ -449,7 +467,9 @@ const CustomizableTimer = () => {
           whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
           onClick={resetTimer} 
           style={{ 
-            background: 'white', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', 
+            background: isFullscreen ? 'rgba(255,255,255,0.1)' : 'white', 
+            color: isFullscreen ? 'white' : 'var(--text-secondary)', 
+            border: `1px solid ${isFullscreen ? 'rgba(255,255,255,0.2)' : 'var(--border-color)'}`, 
             width: '42px', height: '42px', borderRadius: '50%', cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center'
           }}
