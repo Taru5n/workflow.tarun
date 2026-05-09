@@ -22,7 +22,8 @@ import {
   Sparkles,
   Settings,
   Maximize,
-  Minimize
+  Minimize,
+  Target
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { processMessage } from './utils/parser';
