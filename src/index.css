@@ -441,48 +441,103 @@ body.dark .glass-panel {
   overflow: hidden;
 }
 
-.fullscreen-timer-bg {
-  position: absolute;
-  inset: -10%; /* Larger than screen to allow panning */
-  z-index: 0;
-  pointer-events: none;
-  /* Beautiful cosmic galaxy/nebula from Unsplash */
-  background-image: url('https://images.unsplash.com/photo-1538370965046-79c0d6907d47?q=80&w=2069&auto=format&fit=crop'); 
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  animation: ken-burns 30s ease-in-out infinite alternate;
-  filter: brightness(0.6) contrast(1.2);
-}
-
-.fullscreen-timer-bg::after {
-  content: "";
+.fullscreen-video-bg, .fullscreen-image-bg {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at center, transparent 0%, #000 100%);
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  pointer-events: none;
+  filter: brightness(0.6) contrast(1.1) saturate(1.2);
 }
 
-/* Floating particles overlay to give more motion */
-.timer-particles {
+.fullscreen-image-bg {
+  background-size: cover;
+  background-position: center;
+}
+
+.video-overlay-vignette {
   position: absolute;
   inset: 0;
   z-index: 1;
+  background: radial-gradient(circle at center, transparent 20%, rgba(0, 0, 0, 0.7) 100%);
   pointer-events: none;
-  background-image: radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px);
-  background-size: 100px 100px;
-  animation: particle-drift 15s linear infinite; /* Faster motion */
-  opacity: 0.4;
 }
 
-@keyframes ken-burns {
-  0% { transform: scale(1) translate(0, 0) rotate(0deg); filter: brightness(0.6) contrast(1.2); }
-  50% { transform: scale(1.15) translate(-2%, 2%) rotate(1deg); filter: brightness(0.7) contrast(1.3); }
-  100% { transform: scale(1.3) translate(2%, -2%) rotate(-1deg); filter: brightness(0.6) contrast(1.2); }
+/* Vibe Selector Dock */
+.vibe-selector-dock {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 100;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
 }
 
-@keyframes particle-drift {
-  0% { background-position: 0 0; }
-  100% { background-position: 200px 200px; }
+.vibe-option {
+  width: 60px;
+  height: 60px;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  position: relative;
+  border: 2px solid transparent;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.vibe-option.active {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: var(--accent-primary);
+}
+
+.vibe-label {
+  font-size: 0.5rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin-top: 4px;
+  color: rgba(255, 255, 255, 0.6);
+  pointer-events: none;
+}
+
+.pin-button {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: all 0.3s ease;
+}
+
+.vibe-option:hover .pin-button, .pin-button.pinned {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.pin-button.pinned {
+  background: var(--accent-orange);
+  border-color: white;
+  box-shadow: 0 0 10px rgba(255, 165, 0, 0.5);
 }
 
 /* --- Mission Selection Modal --- */

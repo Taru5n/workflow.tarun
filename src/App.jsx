@@ -23,7 +23,7 @@ import {
   Settings,
   Maximize,
   Minimize,
-  Target
+  Pin
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { processMessage } from './utils/parser';
@@ -449,6 +449,15 @@ const LightningCompletion = ({ show }) => {
   );
 };
 
+// --- Background Options ---
+const BACKGROUND_OPTIONS = [
+  { id: 'cosmic', label: 'Galaxy Loop', type: 'image', src: 'https://images.unsplash.com/photo-1538370965046-79c0d6907d47?q=80&w=2069&auto=format&fit=crop', thumbnail: '✨' },
+  { id: 'luxurious_video1', label: 'Luxury Flow 1', type: 'video', src: '/video1.mp4', thumbnail: '💎' },
+  { id: 'luxurious_video3', label: 'Luxury Flow 3', type: 'video', src: '/video3.mp4', thumbnail: '🌟' },
+  { id: 'luxurious_video4', label: 'Luxury Flow 4', type: 'video', src: '/video4.mp4', thumbnail: '🔥' },
+  { id: 'luxurious_video5', label: 'Circle of Life', type: 'video', src: '/video5.mp4', thumbnail: '🦁' }
+];
+
 // --- Customizable Pro Timer ---
 
 const CustomizableTimer = () => {
@@ -457,6 +466,31 @@ const CustomizableTimer = () => {
   const [isActive, setIsActive] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  
+  // Persistence for Background
+  const [activeBgId, setActiveBgId] = useState(() => localStorage.getItem('taskflow_pinned_bg') || 'cosmic');
+  const [pinnedBgId, setPinnedBgId] = useState(() => localStorage.getItem('taskflow_pinned_bg') || 'cosmic');
+
+  const activeBg = BACKGROUND_OPTIONS.find(bg => bg.id === activeBgId) || BACKGROUND_OPTIONS[0];
+
+  const handlePin = (id) => {
+    setPinnedBgId(id);
+    localStorage.setItem('taskflow_pinned_bg', id);
+  };
+
+  useEffect(() => {
+    if (!isFullscreen) return;
+    const handleMouseMove = (e) => {
+      setMousePos({
+        x: (e.clientX / window.innerWidth - 0.5) * 30, 
+        y: (e.clientY / window.innerHeight - 0.5) * 30
+      });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [isFullscreen]);
+
   
   useEffect(() => {
     let interval = null;
@@ -491,8 +525,78 @@ const CustomizableTimer = () => {
     <>
       {isFullscreen && (
         <>
-          <div className="fullscreen-timer-bg"></div>
-          <div className="timer-particles"></div>
+          {activeBg.type === 'video' ? (
+            <motion.video 
+              key={activeBg.id}
+              autoPlay muted loop playsInline
+              animate={{ 
+                x: ['-2%', '2%', '-2%'],
+                y: ['-2%', '2%', '-2%'],
+                scale: [1.1, 1.15, 1.1] 
+              }}
+              transition={{ duration: 120, repeat: Infinity, ease: "linear" }}
+              className="fullscreen-video-bg"
+            >
+              <source src={activeBg.src} type="video/mp4" />
+            </motion.video>
+          ) : (
+            <motion.div
+              key={activeBg.id}
+              animate={{ 
+                backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                scale: [1.1, 1.2, 1.1]
+              }}
+              transition={{ duration: 120, repeat: Infinity, ease: "linear" }}
+              className="fullscreen-image-bg"
+              style={{ 
+                backgroundImage: activeBg.type === 'image' ? `url(${activeBg.src})` : 'none',
+                backgroundColor: activeBg.type === 'color' ? activeBg.color : 'transparent',
+                backgroundSize: '150% 150%'
+              }}
+            />
+          )}
+          <div className="video-overlay-vignette"></div>
+          
+          {/* Vibe Selector Bar */}
+          <AnimatePresence>
+            {!isActive && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                className="vibe-selector-dock"
+              >
+                {BACKGROUND_OPTIONS.map((bg) => (
+                  <motion.div
+                    key={bg.id}
+                    whileHover={{ scale: 1.1, y: -5 }}
+                    className={`vibe-option ${activeBgId === bg.id ? 'active' : ''}`}
+                    onClick={() => setActiveBgId(bg.id)}
+                    style={{ overflow: 'hidden', backgroundColor: bg.type === 'color' ? bg.color : 'rgba(255, 255, 255, 0.05)' }}
+                  >
+                    {bg.type === 'video' && (
+                      <video src={bg.src} autoPlay muted loop playsInline style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6, zIndex: 0 }} />
+                    )}
+                    {bg.type === 'image' && (
+                      <img src={bg.src} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6, zIndex: 0 }} />
+                    )}
+                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 80%)', zIndex: 1 }} />
+                    <span style={{ fontSize: '1.2rem', position: 'relative', zIndex: 2, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))' }}>{bg.thumbnail}</span>
+                    <span className="vibe-label" style={{ position: 'relative', zIndex: 2, textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>{bg.label}</span>
+                    <button 
+                      className={`pin-button ${pinnedBgId === bg.id ? 'pinned' : ''}`}
+                      onClick={(e) => { e.stopPropagation(); handlePin(bg.id); }}
+                      style={{ zIndex: 3 }}
+                      title="Pin this background"
+                    >
+                      <Pin size={10} fill={pinnedBgId === bg.id ? "white" : "none"} />
+                    </button>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </>
       )}
 
