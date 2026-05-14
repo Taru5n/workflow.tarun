@@ -8,15 +8,18 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      injectRegister: 'auto',
       includeAssets: ['favicon.svg', 'icons.svg', 'apple-touch-icon.png', 'icon-192x192.png', 'icon-512x512.png'],
       manifest: {
+        id: 'com.workflow.handle',
         name: 'Workflow Handle',
         short_name: 'Workflow',
         description: 'A premium cinematic productivity and mood tracking app.',
         theme_color: '#000000',
         background_color: '#000000',
         display: 'standalone',
-        orientation: 'portrait',
+        display_override: ['window-controls-overlay', 'standalone', 'minimal-ui'],
+        orientation: 'any',
         icons: [
           {
             src: 'icon-192x192.png',
