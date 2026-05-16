@@ -463,6 +463,8 @@ const BACKGROUND_OPTIONS = [
 const CustomizableTimer = () => {
   const [totalMinutes, setTotalMinutes] = useState(25);
   const [timeLeft, setTimeLeft] = useState(25 * 60);
+  const [mode, setMode] = useState('timer'); // 'timer' or 'stopwatch'
+  const [stopwatchTime, setStopwatchTime] = useState(0);
   const [isActive, setIsActive] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -471,6 +473,18 @@ const CustomizableTimer = () => {
   // Persistence for Background
   const [activeBgId, setActiveBgId] = useState(() => localStorage.getItem('taskflow_pinned_bg') || 'cosmic');
   const [pinnedBgId, setPinnedBgId] = useState(() => localStorage.getItem('taskflow_pinned_bg') || 'cosmic');
+
+  const audioRef = useRef(null);
+
+  useEffect(() => {
+    audioRef.current = new Audio('/ganga_aarti.mp3');
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
 
   const activeBg = BACKGROUND_OPTIONS.find(bg => bg.id === activeBgId) || BACKGROUND_OPTIONS[0];
 
@@ -494,32 +508,71 @@ const CustomizableTimer = () => {
   
   useEffect(() => {
     let interval = null;
-    if (isActive && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
-      }, 1000);
-    } else {
-      clearInterval(interval);
+    if (isActive) {
+      if (mode === 'timer') {
+        if (timeLeft > 0) {
+          interval = setInterval(() => {
+            setTimeLeft((prev) => prev - 1);
+          }, 1000);
+        } else {
+          // Timer hit zero.
+          console.log("Timer hit zero. Background:", activeBgId);
+          if (activeBgId === 'luxurious_video4') {
+            console.log("Attempting to play Ganga Aarti sound...");
+            if (audioRef.current) {
+              audioRef.current.currentTime = 0;
+              audioRef.current.play()
+                .then(() => console.log("Audio playing successfully"))
+                .catch(e => console.error("Audio playback failed or blocked:", e));
+            }
+          }
+          setIsActive(false);
+        }
+      } else {
+        // Stopwatch mode
+        interval = setInterval(() => {
+          setStopwatchTime((prev) => prev + 1);
+        }, 1000);
+      }
     }
     return () => clearInterval(interval);
-  }, [isActive, timeLeft]);
+  }, [isActive, mode, timeLeft === 0, activeBgId]);
 
   useEffect(() => {
     setTimeLeft(totalMinutes * 60);
   }, [totalMinutes]);
 
-  const toggleTimer = () => setIsActive(!isActive);
-  const resetTimer = () => { setTimeLeft(totalMinutes * 60); setIsActive(false); };
+  const toggleTimer = () => {
+    if (!isActive && activeBgId === 'luxurious_video4') {
+      // Prime audio on user gesture to bypass browser restrictions
+      audioRef.current?.load();
+    }
+    setIsActive(!isActive);
+  };
+  const resetTimer = () => { 
+    if (mode === 'timer') {
+      setTimeLeft(totalMinutes * 60); 
+    } else {
+      setStopwatchTime(0);
+    }
+    setIsActive(false); 
+  };
 
   const formatTime = (seconds) => {
-    const m = Math.floor(seconds / 60);
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
     const s = seconds % 60;
+    if (h > 0) return `${h}:${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
     return `${m}:${s < 10 ? '0' : ''}${s}`;
   };
 
   const radius = 70;
   const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (timeLeft / (totalMinutes * 60)) * circumference;
+  
+  // Calculate offset based on mode
+  const offset = mode === 'timer' 
+    ? circumference - (timeLeft / (totalMinutes * 60)) * circumference
+    : circumference - ((stopwatchTime % 60) / 60) * circumference;
 
   const timerContent = (
     <>
@@ -600,16 +653,50 @@ const CustomizableTimer = () => {
         </>
       )}
 
+      {/* Mode Switcher */}
+      <motion.div 
+        layout
+        className="mode-switch"
+        style={{ transform: isFullscreen ? 'scale(1.5)' : 'none', marginBottom: isFullscreen ? '4rem' : '2rem' }}
+      >
+        <button 
+          className={`mode-btn ${mode === 'timer' ? 'active' : ''}`}
+          onClick={() => { setMode('timer'); setIsActive(false); }}
+        >
+          <Timer size={14} /> Timer
+        </button>
+        <button 
+          className={`mode-btn ${mode === 'stopwatch' ? 'active' : ''}`}
+          onClick={() => { setMode('stopwatch'); setIsActive(false); }}
+        >
+          <Clock size={14} /> Stopwatch
+        </button>
+      </motion.div>
+
       <div style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isFullscreen ? '10rem' : '1rem', width: '100%', maxWidth: isFullscreen ? '400px' : 'auto', zIndex: 60, pointerEvents: 'auto' }}>
         <div className="section-title" style={{ margin: 0, display: 'flex', gap: '0.4rem', color: isFullscreen ? 'rgba(255,255,255,0.9)' : 'var(--accent-primary)' }}>
-          <Timer size={14} /> Focus
+          {mode === 'timer' ? <Timer size={14} /> : <Clock size={14} />} {mode === 'timer' ? 'Focus' : 'Stopwatch'}
         </div>
         <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
-          <Settings 
-            size={14} 
-            style={{ cursor: 'pointer', color: isEditing ? 'var(--accent-orange)' : (isFullscreen ? 'rgba(255,255,255,0.6)' : 'var(--text-secondary)') }} 
-            onClick={() => setIsEditing(!isEditing)}
-          />
+          {mode === 'timer' && (
+            <Settings 
+              size={14} 
+              style={{ cursor: 'pointer', color: isEditing ? 'var(--accent-orange)' : (isFullscreen ? 'rgba(255,255,255,0.6)' : 'var(--text-secondary)') }} 
+              onClick={() => setIsEditing(!isEditing)}
+            />
+          )}
+          {activeBgId === 'luxurious_video4' && isFullscreen && (
+            <button 
+              onClick={() => {
+                console.log("Manual sound test...");
+                audioRef.current.currentTime = 0;
+                audioRef.current.play().catch(e => alert("Please click anywhere on the page first to enable sound."));
+              }}
+              style={{ background: 'none', border: 'none', color: isFullscreen ? 'rgba(255,255,255,0.6)' : 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.7rem', fontWeight: 700 }}
+            >
+              <Sparkles size={12} /> TEST SOUND
+            </button>
+          )}
           <button onClick={() => setIsFullscreen(!isFullscreen)} style={{ background: 'none', border: 'none', color: isFullscreen ? 'rgba(255,255,255,0.6)' : 'var(--text-secondary)', cursor: 'pointer', display: 'flex' }}>
             {isFullscreen ? <Minimize size={14} /> : <Maximize size={14} />}
           </button>
@@ -626,10 +713,10 @@ const CustomizableTimer = () => {
             animate={{ strokeDashoffset: offset }}
             style={{ 
               fill: 'none', 
-              stroke: isActive ? '#0ea5e9' : (isFullscreen ? 'rgba(14,165,233,0.5)' : 'var(--accent-primary)'),
+              stroke: isActive ? (mode === 'timer' ? '#0ea5e9' : '#10B981') : (isFullscreen ? 'rgba(255,255,255,0.2)' : 'var(--accent-primary)'),
               strokeWidth: 8,
               strokeLinecap: 'round',
-              filter: isActive ? 'drop-shadow(0 0 12px rgba(14, 165, 233, 0.8))' : 'none'
+              filter: isActive ? `drop-shadow(0 0 12px ${mode === 'timer' ? 'rgba(14, 165, 233, 0.8)' : 'rgba(16, 185, 129, 0.8)'})` : 'none'
             }}
             transition={{ ease: "linear", duration: 1 }}
           />
@@ -643,7 +730,7 @@ const CustomizableTimer = () => {
           flexDirection: 'column',
           alignItems: 'center'
         }}>
-          {isEditing ? (
+          {isEditing && mode === 'timer' ? (
             <div style={{ display: 'flex', alignItems: 'baseline' }}>
               <input 
                 type="number" 
@@ -656,9 +743,18 @@ const CustomizableTimer = () => {
               <span style={{ fontSize: '0.7rem', fontWeight: 700, marginLeft: '2px', color: isFullscreen ? 'white' : 'var(--text-primary)' }}>MIN</span>
             </div>
           ) : (
-            <div style={{ fontSize: '2.25rem', fontWeight: 900, color: isFullscreen ? 'white' : 'var(--text-primary)', letterSpacing: '-0.05em', textShadow: isFullscreen ? '0 4px 20px rgba(0,0,0,0.5)' : 'none' }}>
-              {formatTime(timeLeft)}
-            </div>
+            <AnimatePresence mode="wait">
+              <motion.div 
+                key={mode}
+                initial={{ opacity: 0, y: 10, filter: 'blur(5px)' }}
+                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                exit={{ opacity: 0, y: -10, filter: 'blur(5px)' }}
+                transition={{ duration: 0.3 }}
+                style={{ fontSize: '2.25rem', fontWeight: 900, color: isFullscreen ? 'white' : 'var(--text-primary)', letterSpacing: '-0.05em', textShadow: isFullscreen ? '0 4px 20px rgba(0,0,0,0.5)' : 'none' }}
+              >
+                {formatTime(mode === 'timer' ? timeLeft : stopwatchTime)}
+              </motion.div>
+            </AnimatePresence>
           )}
         </div>
       </div>
@@ -668,7 +764,7 @@ const CustomizableTimer = () => {
           whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
           onClick={toggleTimer} 
           style={{ 
-            background: isActive ? (isFullscreen ? 'rgba(255,255,255,0.2)' : 'var(--text-secondary)') : 'var(--accent-primary)', 
+            background: isActive ? (isFullscreen ? 'rgba(255,255,255,0.2)' : 'var(--text-secondary)') : (mode === 'timer' ? 'var(--accent-primary)' : 'var(--accent-success)'), 
             color: 'white', border: 'none', width: '42px', height: '42px', borderRadius: '50%', 
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
             boxShadow: '0 8px 16px rgba(0, 0, 0, 0.3)',
