@@ -515,7 +515,7 @@ body.dark .glass-panel {
 /* Vibe Selector Dock */
 .vibe-selector-dock {
   position: absolute;
-  bottom: 40px;
+  bottom: 1.2rem;
   left: 50%;
   transform: translateX(-50%);
   display: flex;

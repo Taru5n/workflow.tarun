@@ -648,7 +648,7 @@ const CustomizableTimer = () => {
         </button>
       </motion.div>
 
-      <div style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isFullscreen ? '10rem' : '1rem', width: '100%', maxWidth: isFullscreen ? '400px' : 'auto', zIndex: 60, pointerEvents: 'auto' }}>
+      <div style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isFullscreen ? '6rem' : '1rem', width: '100%', maxWidth: isFullscreen ? '400px' : 'auto', zIndex: 60, pointerEvents: 'auto' }}>
         <div className="section-title" style={{ margin: 0, display: 'flex', gap: '0.4rem', color: isFullscreen ? 'rgba(255,255,255,0.9)' : 'var(--accent-primary)' }}>
           {mode === 'timer' ? <Timer size={14} /> : <Clock size={14} />} {mode === 'timer' ? 'Focus' : 'Stopwatch'}
         </div>
@@ -724,7 +724,7 @@ const CustomizableTimer = () => {
         </div>
       </div>
 
-      <div style={{ position: 'relative', pointerEvents: 'auto', display: 'flex', gap: '0.75rem', justifyContent: 'center', marginTop: isFullscreen ? '10rem' : '1rem', zIndex: 60 }}>
+      <div style={{ position: 'relative', pointerEvents: 'auto', display: 'flex', gap: '0.75rem', justifyContent: 'center', marginTop: isFullscreen ? '6rem' : '1rem', zIndex: 110 }}>
         <motion.button 
           whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
           onClick={toggleTimer} 
