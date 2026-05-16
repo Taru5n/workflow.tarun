@@ -658,6 +658,7 @@ const CustomizableTimer = () => {
           <Clock size={14} /> Stopwatch
         </button>
       </motion.div>
+      <div style={{ position: 'fixed', bottom: '10px', right: '10px', fontSize: '0.6rem', color: 'white', opacity: 0.2, pointerEvents: 'none', zIndex: 10000 }}>v1.3.2</div>
 
       <div style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isFullscreen ? '6rem' : '1rem', width: '100%', maxWidth: isFullscreen ? '400px' : 'auto', zIndex: 60, pointerEvents: 'auto' }}>
         <div className="section-title" style={{ margin: 0, display: 'flex', gap: '0.4rem', color: isFullscreen ? 'rgba(255,255,255,0.9)' : 'var(--accent-primary)' }}>
