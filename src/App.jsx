@@ -465,7 +465,8 @@ const CustomizableTimer = () => {
   const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [mode, setMode] = useState('timer'); // 'timer' or 'stopwatch'
   const [stopwatchTime, setStopwatchTime] = useState(0);
-  const [isActive, setIsActive] = useState(false);
+  const [isTimerActive, setIsTimerActive] = useState(false);
+  const [isStopwatchActive, setIsStopwatchActive] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -494,43 +495,51 @@ const CustomizableTimer = () => {
   }, [isFullscreen]);
 
   
+  // Timer Logic
   useEffect(() => {
     let interval = null;
-    if (isActive) {
-      if (mode === 'timer') {
-        if (timeLeft > 0) {
-          interval = setInterval(() => {
-            setTimeLeft((prev) => prev - 1);
-          }, 1000);
-        } else {
-          // Timer hit zero.
-          console.log("Timer hit zero. Background:", activeBgId);
-          setIsActive(false);
-        }
-      } else {
-        // Stopwatch mode
+    if (isTimerActive) {
+      if (timeLeft > 0) {
         interval = setInterval(() => {
-          setStopwatchTime((prev) => prev + 1);
+          setTimeLeft((prev) => prev - 1);
         }, 1000);
+      } else {
+        setIsTimerActive(false);
       }
     }
     return () => clearInterval(interval);
-  }, [isActive, mode, timeLeft === 0, activeBgId]);
+  }, [isTimerActive, timeLeft]);
+
+  // Stopwatch Logic
+  useEffect(() => {
+    let interval = null;
+    if (isStopwatchActive) {
+      interval = setInterval(() => {
+        setStopwatchTime((prev) => prev + 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isStopwatchActive]);
 
   useEffect(() => {
     setTimeLeft(totalMinutes * 60);
   }, [totalMinutes]);
 
   const toggleTimer = () => {
-    setIsActive(!isActive);
+    if (mode === 'timer') {
+      setIsTimerActive(!isTimerActive);
+    } else {
+      setIsStopwatchActive(!isStopwatchActive);
+    }
   };
   const resetTimer = () => { 
     if (mode === 'timer') {
       setTimeLeft(totalMinutes * 60); 
+      setIsTimerActive(false);
     } else {
       setStopwatchTime(0);
+      setIsStopwatchActive(false);
     }
-    setIsActive(false); 
   };
 
   const formatTime = (seconds) => {
@@ -587,7 +596,7 @@ const CustomizableTimer = () => {
           
           {/* Vibe Selector Bar */}
           <AnimatePresence>
-            {!isActive && (
+            {!(mode === 'timer' ? isTimerActive : isStopwatchActive) && (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -636,13 +645,13 @@ const CustomizableTimer = () => {
       >
         <button 
           className={`mode-btn ${mode === 'timer' ? 'active' : ''}`}
-          onClick={() => { setMode('timer'); setIsActive(false); }}
+          onClick={() => setMode('timer')}
         >
           <Timer size={14} /> Timer
         </button>
         <button 
           className={`mode-btn ${mode === 'stopwatch' ? 'active' : ''}`}
-          onClick={() => { setMode('stopwatch'); setIsActive(false); }}
+          onClick={() => setMode('stopwatch')}
         >
           <Clock size={14} /> Stopwatch
         </button>
@@ -677,7 +686,7 @@ const CustomizableTimer = () => {
               strokeDashoffset: offset,
               stroke: mode === 'timer' ? 'var(--accent-primary)' : 'var(--accent-success)',
               filter: `drop-shadow(0 0 12px ${mode === 'timer' ? 'rgba(59, 130, 246, 0.8)' : 'rgba(16, 185, 129, 0.8)'})`,
-              opacity: isActive ? 1 : (isFullscreen ? 0.6 : 0.8)
+              opacity: (mode === 'timer' ? isTimerActive : isStopwatchActive) ? 1 : (isFullscreen ? 0.6 : 0.8)
             }}
             style={{ 
               fill: 'none', 
@@ -730,14 +739,14 @@ const CustomizableTimer = () => {
           whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
           onClick={toggleTimer} 
           style={{ 
-            background: isActive ? (isFullscreen ? 'rgba(255,255,255,0.2)' : 'var(--text-secondary)') : (mode === 'timer' ? 'var(--accent-primary)' : 'var(--accent-success)'), 
+            background: (mode === 'timer' ? isTimerActive : isStopwatchActive) ? (isFullscreen ? 'rgba(255,255,255,0.2)' : 'var(--text-secondary)') : (mode === 'timer' ? 'var(--accent-primary)' : 'var(--accent-success)'), 
             color: 'white', border: 'none', width: '42px', height: '42px', borderRadius: '50%', 
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
             boxShadow: '0 8px 16px rgba(0, 0, 0, 0.3)',
             backdropFilter: isFullscreen ? 'blur(10px)' : 'none'
           }}
         >
-          {isActive ? <Pause size={18} /> : <Play size={18} />}
+          {(mode === 'timer' ? isTimerActive : isStopwatchActive) ? <Pause size={18} /> : <Play size={18} />}
         </motion.button>
         <motion.button 
           whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
