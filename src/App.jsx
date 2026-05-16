@@ -675,8 +675,9 @@ const CustomizableTimer = () => {
             strokeDasharray={circumference}
             animate={{ 
               strokeDashoffset: offset,
-              stroke: isActive ? (mode === 'timer' ? 'var(--accent-primary)' : '#10B981') : (isFullscreen ? 'rgba(255,255,255,0.2)' : 'var(--accent-primary)'),
-              filter: isActive ? `drop-shadow(0 0 12px ${mode === 'timer' ? 'rgba(59, 130, 246, 0.8)' : 'rgba(16, 185, 129, 0.8)'})` : 'none'
+              stroke: mode === 'timer' ? 'var(--accent-primary)' : 'var(--accent-success)',
+              filter: `drop-shadow(0 0 12px ${mode === 'timer' ? 'rgba(59, 130, 246, 0.8)' : 'rgba(16, 185, 129, 0.8)'})`,
+              opacity: isActive ? 1 : (isFullscreen ? 0.6 : 0.8)
             }}
             style={{ 
               fill: 'none', 
