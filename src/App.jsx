@@ -460,6 +460,7 @@ const BACKGROUND_OPTIONS = [
 
 // --- Customizable Pro Timer ---
 
+// Version 1.3.1 - Independent Timer/Stopwatch
 const CustomizableTimer = () => {
   const [totalMinutes, setTotalMinutes] = useState(25);
   const [timeLeft, setTimeLeft] = useState(25 * 60);
