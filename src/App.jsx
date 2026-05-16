@@ -474,18 +474,6 @@ const CustomizableTimer = () => {
   const [activeBgId, setActiveBgId] = useState(() => localStorage.getItem('taskflow_pinned_bg') || 'cosmic');
   const [pinnedBgId, setPinnedBgId] = useState(() => localStorage.getItem('taskflow_pinned_bg') || 'cosmic');
 
-  const audioRef = useRef(null);
-
-  useEffect(() => {
-    audioRef.current = new Audio('/ganga_aarti.mp3');
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-    };
-  }, []);
-
   const activeBg = BACKGROUND_OPTIONS.find(bg => bg.id === activeBgId) || BACKGROUND_OPTIONS[0];
 
   const handlePin = (id) => {
@@ -517,15 +505,6 @@ const CustomizableTimer = () => {
         } else {
           // Timer hit zero.
           console.log("Timer hit zero. Background:", activeBgId);
-          if (activeBgId === 'luxurious_video4') {
-            console.log("Attempting to play Ganga Aarti sound...");
-            if (audioRef.current) {
-              audioRef.current.currentTime = 0;
-              audioRef.current.play()
-                .then(() => console.log("Audio playing successfully"))
-                .catch(e => console.error("Audio playback failed or blocked:", e));
-            }
-          }
           setIsActive(false);
         }
       } else {
@@ -543,10 +522,6 @@ const CustomizableTimer = () => {
   }, [totalMinutes]);
 
   const toggleTimer = () => {
-    if (!isActive && activeBgId === 'luxurious_video4') {
-      // Prime audio on user gesture to bypass browser restrictions
-      audioRef.current?.load();
-    }
     setIsActive(!isActive);
   };
   const resetTimer = () => { 
@@ -685,17 +660,6 @@ const CustomizableTimer = () => {
               onClick={() => setIsEditing(!isEditing)}
             />
           )}
-          {activeBgId === 'luxurious_video4' && isFullscreen && (
-            <button 
-              onClick={() => {
-                console.log("Manual sound test...");
-                audioRef.current.currentTime = 0;
-                audioRef.current.play().catch(e => alert("Please click anywhere on the page first to enable sound."));
-              }}
-              style={{ background: 'none', border: 'none', color: isFullscreen ? 'rgba(255,255,255,0.6)' : 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.7rem', fontWeight: 700 }}
-            >
-              <Sparkles size={12} /> TEST SOUND
-            </button>
           )}
           <button onClick={() => setIsFullscreen(!isFullscreen)} style={{ background: 'none', border: 'none', color: isFullscreen ? 'rgba(255,255,255,0.6)' : 'var(--text-secondary)', cursor: 'pointer', display: 'flex' }}>
             {isFullscreen ? <Minimize size={14} /> : <Maximize size={14} />}
@@ -710,13 +674,15 @@ const CustomizableTimer = () => {
             className="timer-progress" 
             cx="80" cy="80" r={radius} 
             strokeDasharray={circumference}
-            animate={{ strokeDashoffset: offset }}
+            animate={{ 
+              strokeDashoffset: offset,
+              stroke: isActive ? (mode === 'timer' ? 'var(--accent-primary)' : '#10B981') : (isFullscreen ? 'rgba(255,255,255,0.2)' : 'var(--accent-primary)'),
+              filter: isActive ? `drop-shadow(0 0 12px ${mode === 'timer' ? 'rgba(59, 130, 246, 0.8)' : 'rgba(16, 185, 129, 0.8)'})` : 'none'
+            }}
             style={{ 
               fill: 'none', 
-              stroke: isActive ? (mode === 'timer' ? '#0ea5e9' : '#10B981') : (isFullscreen ? 'rgba(255,255,255,0.2)' : 'var(--accent-primary)'),
               strokeWidth: 8,
-              strokeLinecap: 'round',
-              filter: isActive ? `drop-shadow(0 0 12px ${mode === 'timer' ? 'rgba(14, 165, 233, 0.8)' : 'rgba(16, 185, 129, 0.8)'})` : 'none'
+              strokeLinecap: 'round'
             }}
             transition={{ ease: "linear", duration: 1 }}
           />
