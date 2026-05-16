@@ -471,6 +471,10 @@ const CustomizableTimer = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    console.log("Workflow Handle Timer v1.3.1 - Mode decoupling active.");
+  }, []);
   
   // Persistence for Background
   const [activeBgId, setActiveBgId] = useState(() => localStorage.getItem('taskflow_pinned_bg') || 'cosmic');
