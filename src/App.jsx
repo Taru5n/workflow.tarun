@@ -660,7 +660,6 @@ const CustomizableTimer = () => {
               onClick={() => setIsEditing(!isEditing)}
             />
           )}
-          )}
           <button onClick={() => setIsFullscreen(!isFullscreen)} style={{ background: 'none', border: 'none', color: isFullscreen ? 'rgba(255,255,255,0.6)' : 'var(--text-secondary)', cursor: 'pointer', display: 'flex' }}>
             {isFullscreen ? <Minimize size={14} /> : <Maximize size={14} />}
           </button>
