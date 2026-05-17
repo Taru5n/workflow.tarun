@@ -453,10 +453,9 @@ const LightningCompletion = ({ show }) => {
 // --- Background Options ---
 const BACKGROUND_OPTIONS = [
   { id: 'cosmic', label: 'Galaxy Loop', type: 'image', src: 'https://images.unsplash.com/photo-1538370965046-79c0d6907d47?q=80&w=2069&auto=format&fit=crop', thumbnail: '✨' },
-  { id: 'luxurious_video1', label: 'Luxury Flow 1', type: 'video', src: 'video1.mp4', thumbnail: '💎' },
-  { id: 'luxurious_video2', label: 'Luxury Flow 2', type: 'video', src: 'video2.mp4', thumbnail: '👑' },
-  { id: 'luxurious_video4', label: 'Luxury Flow 4', type: 'video', src: 'video4.mp4', thumbnail: '🔥' },
-  { id: 'luxurious_video5', label: 'Circle of Life', type: 'video', src: 'video5.mp4', thumbnail: '🦁' }
+  { id: 'luxurious_video1', label: 'Luxury Flow 1', type: 'video', src: '/video1.mp4', thumbnail: '💎' },
+  { id: 'luxurious_video4', label: 'Luxury Flow 4', type: 'video', src: '/video4.mp4', thumbnail: '🔥' },
+  { id: 'luxurious_video5', label: 'Circle of Life', type: 'video', src: '/video5.mp4', thumbnail: '🦁' }
 ];
 
 // --- Customizable Pro Timer ---
