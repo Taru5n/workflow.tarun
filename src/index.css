@@ -1,54 +1,54 @@
 :root {
-  --bg-color: #FAF5F0;
-  --panel-bg: rgba(255, 252, 248, 0.7);
-  --sidebar-bg: rgba(245, 238, 230, 0.8);
-  --accent-primary: #301014;
-  --accent-secondary: #8A7B6B;
-  --accent-orange: #E7CFBC;
-  --accent-yellow: #E7CFBC;
-  --accent-bolt: #E7CFBC;
-  --accent-success: #2D6A4F;
-  --text-primary: #1A0A0D;
-  --text-secondary: #6B5C52;
-  --border-color: rgba(48, 16, 20, 0.12);
-  --card-bg: rgba(255, 252, 248, 0.85);
-  --glass-border: rgba(231, 207, 188, 0.4);
-  --glass-shadow: 0 10px 25px -5px rgba(48, 16, 20, 0.08);
+  --bg-color: #FFFFFF;
+  --panel-bg: rgba(255, 255, 255, 0.7);
+  --sidebar-bg: rgba(248, 250, 252, 0.8);
+  --accent-primary: #1E3A8A;
+  --accent-secondary: #94A3B8;
+  --accent-orange: #F97316;
+  --accent-yellow: #FED7AA;
+  --accent-bolt: #FACC15;
+  --accent-success: #10B981;
+  --text-primary: #0F172A;
+  --text-secondary: #64748B;
+  --border-color: rgba(226, 232, 240, 0.5);
+  --card-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.4);
+  --glass-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
   
   /* Progress Stages */
-  --stage-orbital: #4A6FA5;
-  --stage-ignition: #7B6B8A;
-  --stage-thermal: #A0522D;
-  --stage-touchdown: #2D6A4F;
-  --modal-overlay: rgba(0, 16, 33, 0.5);
+  --stage-orbital: #3B82F6;
+  --stage-ignition: #06B6D4;
+  --stage-thermal: #F97316;
+  --stage-touchdown: #10B981; /* Emerald Green for a winning, congratulatory feel */
+  --modal-overlay: rgba(0, 0, 0, 0.4);
 }
 
 [data-theme='dark'] {
-  --bg-color: #001021;
-  --panel-bg: rgba(1, 23, 47, 0.6);
-  --sidebar-bg: rgba(1, 23, 47, 0.85);
-  --accent-primary: #E7CFBC;
-  --accent-secondary: #6B7B8A;
-  --accent-orange: #E7CFBC;
-  --text-primary: #DFDFDF;
-  --text-secondary: #8A9BAA;
-  --border-color: rgba(231, 207, 188, 0.12);
-  --card-bg: rgba(1, 23, 47, 0.85);
-  --glass-border: rgba(231, 207, 188, 0.08);
+  --bg-color: #0A0A0B;
+  --panel-bg: rgba(20, 20, 23, 0.6);
+  --sidebar-bg: rgba(15, 15, 18, 0.7);
+  --accent-primary: #3B82F6;
+  --accent-secondary: #475569;
+  --accent-orange: #FB923C;
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --border-color: rgba(51, 65, 85, 0.3);
+  --card-bg: rgba(20, 20, 30, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.08);
   --glass-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-  --modal-overlay: rgba(0, 8, 18, 0.7);
+  --modal-overlay: rgba(0, 0, 0, 0.6);
 }
 
 body.dark {
-  --bg-color: #001021;
-  --panel-bg: rgba(1, 23, 47, 0.8);
-  --sidebar-bg: #01172F;
-  --accent-primary: #E7CFBC;
-  --accent-secondary: #6B7B8A;
-  --text-primary: #DFDFDF;
-  --text-secondary: #8A9BAA;
-  --border-color: #0A2A4A;
-  --card-bg: #01172F;
+  --bg-color: #020617;
+  --panel-bg: rgba(15, 23, 42, 0.8);
+  --sidebar-bg: #0F172A;
+  --accent-primary: #38B2AC; /* Cyan for dark mode primary */
+  --accent-secondary: #475569;
+  --text-primary: #F1F5F9;
+  --text-secondary: #94A3B8;
+  --border-color: #1E293B;
+  --card-bg: #1E293B;
 }
 
 * {
@@ -935,10 +935,7 @@ body.dark .glass-panel {
   box-shadow: 0 4px 15px rgba(48, 16, 20, 0.3);
 }
 
-[data-theme='dark'] .note-save-btn {
-  background: #301014;
-  color: #E7CFBC;
-}
+
 
 /* --- Week View Enhancements --- */
 .week-nav {
@@ -970,11 +967,7 @@ body.dark .glass-panel {
   border-color: var(--accent-primary);
 }
 
-[data-theme='dark'] .week-nav-btn:hover {
-  background: #301014;
-  color: #E7CFBC;
-  border-color: #301014;
-}
+
 
 .week-nav-label {
   font-weight: 900;
@@ -1035,10 +1028,7 @@ body.dark .glass-panel {
   box-shadow: 0 0 20px rgba(48, 16, 20, 0.08);
 }
 
-[data-theme='dark'] .week-day-column.today {
-  border-color: #E7CFBC !important;
-  box-shadow: 0 0 20px rgba(231, 207, 188, 0.05);
-}
+
 
 .today-badge {
   display: inline-block;
@@ -1053,7 +1043,4 @@ body.dark .glass-panel {
   margin-top: 0.3rem;
 }
 
-[data-theme='dark'] .today-badge {
-  background: #301014;
-  color: #E7CFBC;
-}
+
