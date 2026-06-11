@@ -53,9 +53,9 @@ const TSLogo = ({ size = 44, showBackground = true }) => (
     <svg width={size * 0.7} height={size * 0.7} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="logo-gold" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#D4AF37" />
-          <stop offset="50%" stopColor="#FFFACD" />
-          <stop offset="100%" stopColor="#B8860B" />
+          <stop offset="0%" stopColor="#B57862" />
+          <stop offset="50%" stopColor="#B57862" />
+          <stop offset="100%" stopColor="#B57862" />
         </linearGradient>
         <filter id="gold-glow" x="-20%" y="-20%" width="140%" height="140%">
           <feGaussianBlur stdDeviation="2" result="blur" />
@@ -89,8 +89,8 @@ const ShieldLogo = ({ size = 44 }) => (
     <svg width="100%" height="100%" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="shield-gold" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#D4AF37" />
-          <stop offset="100%" stopColor="#B8860B" />
+          <stop offset="0%" stopColor="#B57862" />
+          <stop offset="100%" stopColor="#B57862" />
         </linearGradient>
       </defs>
       <path d="M50 5L10 20V50C10 75 50 95 50 95C50 95 90 75 90 50V20L50 5Z" fill="#1E3A8A" stroke="url(#shield-gold)" strokeWidth="4" />
@@ -187,12 +187,12 @@ const SplashScreen = () => (
       style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
     >
       <TSLogo size={80} />
-      <h1 style={{ color: '#FFFACD', fontWeight: 900, fontSize: '2.5rem', letterSpacing: '-0.06em' }}>Workflow</h1>
+      <h1 style={{ color: '#DFDFDF', fontWeight: 900, fontSize: '2.5rem', letterSpacing: '-0.06em' }}>Workflow</h1>
       <div style={{ width: '40px', height: '2px', background: 'rgba(255,255,255,0.2)', marginTop: '1rem', borderRadius: '1px' }}>
         <motion.div 
           animate={{ width: ['0%', '100%'] }}
           transition={{ duration: 2, ease: "easeInOut" }}
-          style={{ height: '100%', background: '#D4AF37' }}
+          style={{ height: '100%', background: '#06B6D4' }}
         />
       </div>
     </motion.div>
@@ -283,7 +283,7 @@ const ThemeToggle = ({ theme, toggleTheme }) => (
         boxShadow: '0 2px 10px rgba(249, 115, 22, 0.3)'
       }}
     >
-      {theme === 'dark' ? <Zap size={14} color="#D4AF37" fill="#D4AF37" /> : <Sparkles size={14} color="#D4AF37" />}
+      {theme === 'dark' ? <Zap size={14} color="#06B6D4" fill="#06B6D4" /> : <Sparkles size={14} color="#06B6D4" />}
     </motion.div>
     <span style={{ 
       position: 'absolute', right: theme === 'dark' ? 'auto' : '8px', 
@@ -428,7 +428,7 @@ const LightningCompletion = ({ show }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: [0, 0.5, 0] }}
             transition={{ duration: 0.1, times: [0, 0.5, 1], repeat: 2 }}
-            style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: '#D4AF37', zIndex: 999 }}
+            style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: '#06B6D4', zIndex: 999 }}
           />
           <motion.div 
             initial={{ scale: 0, rotate: -45, opacity: 0 }}
@@ -445,7 +445,7 @@ const LightningCompletion = ({ show }) => {
               zIndex: 1000, pointerEvents: 'none'
             }}
           >
-            <Zap size={240} color="#D4AF37" fill="#D4AF37" style={{ filter: 'drop-shadow(0 0 30px rgba(250, 204, 21, 0.6))' }} />
+            <Zap size={240} color="#06B6D4" fill="#06B6D4" style={{ filter: 'drop-shadow(0 0 30px rgba(6, 182, 212, 0.6))' }} />
           </motion.div>
         </>
       )}
@@ -485,7 +485,27 @@ const CustomizableTimer = () => {
   const [activeBgId, setActiveBgId] = useState(() => localStorage.getItem('taskflow_pinned_bg') || 'cosmic');
   const [pinnedBgId, setPinnedBgId] = useState(() => localStorage.getItem('taskflow_pinned_bg') || 'cosmic');
 
-  const activeBg = BACKGROUND_OPTIONS.find(bg => bg.id === activeBgId) || BACKGROUND_OPTIONS[0];
+  const fileInputRef = useRef(null);
+  const [customBg, setCustomBg] = useState(null);
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      const isVideo = file.type.startsWith('video/');
+      const newCustomBg = {
+        id: 'custom_upload',
+        label: 'Custom',
+        type: isVideo ? 'video' : 'image',
+        src: url,
+        thumbnail: '🖼️'
+      };
+      setCustomBg(newCustomBg);
+      setActiveBgId('custom_upload');
+    }
+  };
+
+  const activeBg = (activeBgId === 'custom_upload' && customBg) ? customBg : (BACKGROUND_OPTIONS.find(bg => bg.id === activeBgId) || BACKGROUND_OPTIONS[0]);
 
   const handlePin = (id) => {
     setPinnedBgId(id);
@@ -687,6 +707,28 @@ const CustomizableTimer = () => {
                     </button>
                   </motion.div>
                 ))}
+                
+                {/* Custom Upload Option */}
+                <motion.div
+                  whileHover={{ scale: 1.1, y: -5 }}
+                  className={`vibe-option ${activeBgId === 'custom_upload' ? 'active' : ''}`}
+                  onClick={() => fileInputRef.current?.click()}
+                  style={{ overflow: 'hidden', backgroundColor: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  {customBg && activeBgId === 'custom_upload' ? (
+                    <>
+                      {customBg.type === 'video' ? (
+                        <video src={customBg.src} autoPlay muted loop playsInline style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6, zIndex: 0 }} />
+                      ) : (
+                        <img src={customBg.src} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6, zIndex: 0 }} />
+                      )}
+                    </>
+                  ) : null}
+                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 80%)', zIndex: 1 }} />
+                  <span style={{ fontSize: '1.2rem', position: 'relative', zIndex: 2, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))' }}>➕</span>
+                  <span className="vibe-label" style={{ position: 'relative', zIndex: 2, textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>Upload</span>
+                  <input type="file" accept="image/*,video/*" style={{ display: 'none' }} ref={fileInputRef} onChange={handleFileUpload} />
+                </motion.div>
               </motion.div>
             )}
           </AnimatePresence>
@@ -721,7 +763,7 @@ const CustomizableTimer = () => {
           {mode === 'timer' && (
             <Settings 
               size={14} 
-              style={{ cursor: 'pointer', color: isEditing ? '#D4AF37' : (isFullscreen ? 'rgba(255,255,255,0.6)' : 'var(--text-secondary)') }} 
+              style={{ cursor: 'pointer', color: isEditing ? '#06B6D4' : (isFullscreen ? 'rgba(255,255,255,0.6)' : 'var(--text-secondary)') }} 
               onClick={() => setIsEditing(!isEditing)}
             />
           )}
@@ -740,7 +782,7 @@ const CustomizableTimer = () => {
             strokeDasharray={circumference}
             animate={{ 
               strokeDashoffset: offset,
-              stroke: mode === 'timer' ? '#B8860B' : 'var(--accent-success)',
+              stroke: mode === 'timer' ? 'var(--accent-primary)' : 'var(--accent-success)',
               filter: `drop-shadow(0 0 12px ${mode === 'timer' ? 'rgba(59, 130, 246, 0.8)' : 'rgba(16, 185, 129, 0.8)'})`,
               opacity: (mode === 'timer' ? isTimerActive : isStopwatchActive) ? 1 : (isFullscreen ? 0.6 : 0.8)
             }}
@@ -769,9 +811,9 @@ const CustomizableTimer = () => {
                 value={totalMinutes}
                 onChange={(e) => setTotalMinutes(Math.max(1, parseInt(e.target.value) || 1))}
                 autoFocus
-                style={{ color: isFullscreen ? '#FFFACD' : 'var(--text-primary)', borderColor: isFullscreen ? 'rgba(212, 175, 55, 0.3)' : 'var(--border-color)' }}
+                style={{ color: isFullscreen ? '#06B6D4' : 'var(--text-primary)', borderColor: isFullscreen ? 'rgba(6, 182, 212, 0.3)' : 'var(--border-color)' }}
               />
-              <span style={{ fontSize: '0.7rem', fontWeight: 700, marginLeft: '2px', color: isFullscreen ? '#FFFACD' : 'var(--text-primary)' }}>MIN</span>
+              <span style={{ fontSize: '0.7rem', fontWeight: 700, marginLeft: '2px', color: isFullscreen ? '#06B6D4' : 'var(--text-primary)' }}>MIN</span>
             </div>
           ) : (
             <AnimatePresence mode="wait">
@@ -781,7 +823,7 @@ const CustomizableTimer = () => {
                 animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                 exit={{ opacity: 0, y: -10, filter: 'blur(5px)' }}
                 transition={{ duration: 0.3 }}
-                style={{ fontSize: '2.25rem', fontWeight: 900, color: isFullscreen ? '#FFFACD' : 'var(--text-primary)', letterSpacing: '-0.05em', textShadow: isFullscreen ? '0 4px 20px rgba(0,0,0,0.5)' : 'none' }}
+                style={{ fontSize: '2.25rem', fontWeight: 900, color: isFullscreen ? '#06B6D4' : 'var(--text-primary)', letterSpacing: '-0.05em', textShadow: isFullscreen ? '0 4px 20px rgba(0,0,0,0.5)' : 'none' }}
               >
                 {formatTime(mode === 'timer' ? timerDisplay : stopwatchDisplay)}
               </motion.div>
@@ -795,8 +837,8 @@ const CustomizableTimer = () => {
           whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
           onClick={toggleTimer} 
           style={{ 
-            background: (mode === 'timer' ? isTimerActive : isStopwatchActive) ? (isFullscreen ? 'rgba(255,255,255,0.2)' : 'var(--text-secondary)') : '#B8860B', 
-            color: 'var(--accent-orange)', border: 'none', width: '42px', height: '42px', borderRadius: '50%', 
+            background: (mode === 'timer' ? isTimerActive : isStopwatchActive) ? (isFullscreen ? 'rgba(255,255,255,0.2)' : 'var(--text-secondary)') : '#06B6D4', 
+            color: 'white', border: 'none', width: '42px', height: '42px', borderRadius: '50%', 
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
             boxShadow: '0 8px 16px rgba(0, 0, 0, 0.3)',
             backdropFilter: isFullscreen ? 'blur(10px)' : 'none'
@@ -809,7 +851,7 @@ const CustomizableTimer = () => {
           onClick={resetTimer} 
           style={{ 
             background: isFullscreen ? 'rgba(255,255,255,0.1)' : 'var(--card-bg)', 
-            color: isFullscreen ? '#FFFACD' : 'var(--text-secondary)', 
+            color: isFullscreen ? '#06B6D4' : 'var(--text-secondary)', 
             border: `1px solid ${isFullscreen ? 'rgba(255,255,255,0.2)' : 'var(--border-color)'}`, 
             width: '42px', height: '42px', borderRadius: '50%', cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -865,7 +907,7 @@ const OverviewHub = ({ pendingTasks, isMobile }) => {
             <motion.div 
               animate={{ opacity: [0, 1, 0] }}
               transition={{ duration: 1.5, repeat: Infinity }}
-              style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#D4AF37' }}
+              style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#06B6D4' }}
             />
           </div>
         </div>
@@ -1155,7 +1197,7 @@ function App() {
         particleCount: 150,
         spread: 120,
         origin: { y: 0.7 },
-        colors: ['#F97316', '#FACC15', '#1E3A8A']
+        colors: ['#F97316', '#06B6D4', '#1E3A8A']
       });
       setCompletionSlang(COMPLETION_SLANGS[Math.floor(Math.random() * COMPLETION_SLANGS.length)]);
       setShowLightning(true);
@@ -1580,7 +1622,7 @@ function SidebarItem({ icon, label, active, onClick }) {
   return (
     <motion.div whileHover={{ x: 8, scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={onClick} style={{
       display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.1rem 1.5rem', borderRadius: '18px', cursor: 'pointer',
-      background: active ? '#B8860B' : 'transparent', color: active ? '#D4AF37' : 'var(--text-secondary)',
+      background: active ? 'var(--accent-primary)' : 'transparent', color: active ? 'white' : 'var(--text-secondary)',
       transition: 'all 0.4s cubic-bezier(0.23, 1, 0.32, 1)', fontWeight: active ? 800 : 600, boxShadow: active ? '0 12px 24px -6px rgba(249, 115, 22, 0.4)' : 'none'
     }}>
       {icon}

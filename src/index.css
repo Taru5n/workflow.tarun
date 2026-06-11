@@ -5,8 +5,8 @@
   --accent-primary: #1E3A8A;
   --accent-secondary: #94A3B8;
   --accent-orange: #F97316;
-  --accent-yellow: #FED7AA;
-  --accent-bolt: #FACC15;
+  --accent-yellow: #06B6D4;
+  --accent-bolt: #06B6D4;
   --accent-success: #10B981;
   --text-primary: #0F172A;
   --text-secondary: #64748B;
@@ -317,7 +317,7 @@ body.dark .glass-panel {
 
 /* Trendy Text Styles */
 .shimmer-text {
-  background: linear-gradient(90deg, #6B5C52, #DFDFDF, #6B5C52);
+  background: linear-gradient(90deg, #06B6D4, #DFDFDF, #06B6D4);
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -410,18 +410,14 @@ body.dark .glass-panel {
 
 .vibrant-text {
   font-family: var(--font-heading);
-  background: linear-gradient(135deg, #301014 0%, #E7CFBC 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-style: italic;
-  font-weight: 400;
-  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  font-weight: 800;
+  letter-spacing: -0.04em;
 }
 
 [data-theme='dark'] .vibrant-text {
-  background: linear-gradient(135deg, #E7CFBC 0%, #DFDFDF 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #F1F5F9;
+  text-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
 }
 
 /* Legacy Visuals for BackgroundArt Component */
